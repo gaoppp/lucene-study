@@ -13,23 +13,27 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 
+/**
+ * TermQuery
+ *
+ * @author pei.gao
+ */
 public class TermQueryDemo {
     private Directory directory;
+    private IndexWriter indexWriter;
 
     {
         try {
             directory = new RAMDirectory();
+            Analyzer analyzer = new WhitespaceAnalyzer();
+            IndexWriterConfig conf = new IndexWriterConfig(analyzer);
+            indexWriter = new IndexWriter(directory, conf);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // 空格分词器
-    private Analyzer analyzer = new WhitespaceAnalyzer();
-    private IndexWriterConfig conf = new IndexWriterConfig(analyzer);
-
-    private void doDemo() throws Exception {
-        IndexWriter indexWriter = new IndexWriter(directory, conf);
+    private void index() throws Exception {
         Document doc;
         // 0
         doc = new Document();
@@ -84,7 +88,9 @@ public class TermQueryDemo {
         indexWriter.addDocument(doc);
         indexWriter.commit();
         // 索引阶段结束
+    }
 
+    private void search() throws Exception{
         //查询阶段
         IndexReader reader = DirectoryReader.open(indexWriter);
         IndexSearcher searcher = new IndexSearcher(reader);
@@ -108,6 +114,7 @@ public class TermQueryDemo {
 
     public static void main(String[] args) throws Exception {
         TermQueryDemo termQueryTest = new TermQueryDemo();
-        termQueryTest.doDemo();
+        termQueryTest.index();
+        termQueryTest.search();
     }
 }
